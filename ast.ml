@@ -1,6 +1,4 @@
 
-open Util
-
 (***********************************************
  * syntax
  ***********************************************)
@@ -11,21 +9,14 @@ open Util
   let utf8 = ref false
 
   type term =
-    Tst of id
   | Act of id
   | Plus of term list
   | Times of term list
-  | Not of term
   | Star of term
   | Zero
   | One
   
-  type substitution = (id, term) Subst.t
-  type equation = Eq of term * term | Le of term * term
-  type formula = equation list
-  
-  type attribute = String_attribute of string * string | Int_attribute of string * int
-  type element = string * attribute list * string
+  type equation = Eq of term * term
 
 (***********************************************
  * output
@@ -41,9 +32,8 @@ open Util
     match t with
       Plus _ -> 0
     | Times _ -> 1
-    | Not _ -> 2
-    | Star _ -> 3
-    | _ -> 4 (* variables and constants *)
+    | Star _ -> 2
+    | _ -> 3 (* variables and constants *)
 
   let rec term_to_string (t : term) : string =
     (* parenthesize as dictated by surrounding precedence *)

@@ -15,16 +15,16 @@ open Ast
 %left TIMES ACT ZERO ONE LPAREN
 %nonassoc STAR
 
-%start term_main equation_main  /* entry points */
-%type <Ast.equation> equation_main
-%type <Ast.term> term_main
+%start parse_term parse_equation  /* entry points */
+%type <Ast.equation> parse_equation
+%type <Ast.term> parse_term
 
 %%
 
-term_main:
+parse_term:
   term EOL { $1 }
 ;
-equation_main:
+parse_equation:
   equation EOL { $1 }
 ;
 

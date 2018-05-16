@@ -1,4 +1,9 @@
-# ignore all logs
+# ignore all generated files
 *.merlin
 *.cmo
 *.cmi
+
+ka
+lexer.ml
+parser.ml
+parser.mli

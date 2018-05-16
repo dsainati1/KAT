@@ -1,0 +1,4 @@
+# ignore all logs
+*.merlin
+*.cmo
+*.cmi

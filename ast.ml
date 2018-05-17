@@ -1,7 +1,4 @@
-
-(***********************************************
-* syntax
-***********************************************)
+open Batteries
 
 type id = string
 
@@ -14,10 +11,6 @@ type term =
 | One
 
 type equation = term * term
-
-(***********************************************
-* output
-***********************************************)
 
 let assoc_to_string (op : string) (id : string) (s : string list) : string =
   match s with
@@ -83,3 +76,14 @@ and simplify_star (e : term) : term =
   | Zero -> One
   | One -> One
   | _ -> Star e'
+
+module StringSet = Set.Make(String)
+
+let rec vars : term -> StringSet.t = function
+  | Zero -> StringSet.empty
+  | One -> StringSet.empty
+  | Act x -> StringSet.singleton x
+  | Times (e1, e2)
+  | Plus (e1, e2) -> StringSet.union (vars e1) (vars e2)
+  | Star e -> vars e
+

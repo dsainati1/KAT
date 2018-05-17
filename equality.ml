@@ -1,26 +1,6 @@
 open Ast
-
-module Derivative = struct
-	let rec e : term -> term = function
-		  Act _ -> Zero
-		| One -> One
-		| Zero -> Zero
-		| Plus (e1, e2) -> Plus (e e1, e e2)
-		| Times (e1, e2) -> Times (e e1, e e2)
-		| Star _ -> One
-	and d (exp : term) : string -> term = fun a -> 
-		match exp with
-		| Zero -> Zero
-		| One -> One
-		| Act b when a = b -> One
-		| Act b -> Zero
-		| Plus (e1, e2) -> Plus (d e1 a, d e2 a) 
-		| Times (e1, e2) -> 
-			let e1' = Times (d e1 a, e2) in 
-			let e2' = Times (e e1, d e2 a) in
-			Plus (e1', e2')
-		| Star e' -> Times (d e' a, exp)
-end
+open Automata
+open Batteries
 
 (* Equal if the expressions are equal, or 
  * Nonequal if they are not, with the data carried being
@@ -28,6 +8,9 @@ end
 type result = Equal | NonEqual of string
 
 let check_equality ((e1 : term), (e2: term)) : result = 
-	Derivative.d e1 "a" |> simplify |> term_to_string |> print_endline;
-	Derivative.d e2 "a" |> simplify |> term_to_string |> print_endline;
-	Equal
+	(*Derivative.d e1 "a" |> simplify |> term_to_string |> print_endline;
+	Derivative.d e2 "a" |> simplify |> term_to_string |> print_endline;*)
+	let vars = StringSet.union (vars e1) (vars e2) in
+	let d1 = build_nfa e1 vars |> determinize |> minimize in 
+	let d2 = build_nfa e2 vars |> determinize |> minimize in 
+	equal d1 d2 |> Option.map (fun s -> NonEqual s) |> Option.default Equal 

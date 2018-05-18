@@ -11,7 +11,12 @@ let check_equality ((e1 : term), (e2: term)) : result =
 	let open Option in 
 	(*Derivative.d e1 "a" |> simplify |> term_to_string |> print_endline;
 	Derivative.d e2 "a" |> simplify |> term_to_string |> print_endline;*)
-	let vars = StringSet.union (vars e1) (vars e2) in
-	let d1 = build_nfa e1 vars |> determinize |> minimize in 
-	let d2 = build_nfa e2 vars |> determinize |> minimize in 
+	let v = StringSet.union (vars e1) (vars e2) in
+	let d1 = build_nfa e1 v |> determinize |> minimize in 
+	let d2 = build_nfa e2 v |> determinize |> minimize in 
 	equal d1 d2 |> map (fun s -> NonEqual s) |? Equal 
+
+let automaton_string (e : term) : string = 
+	   vars e
+	|> build_nfa e 
+	|> string_of_nfa

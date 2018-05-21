@@ -319,8 +319,8 @@ let equal ((start1, states1) : dfa) ((start2, states2) : dfa) : string option =
     %>  String.trim in 
 
 	let sigma = vars_of_dfa states1
-	         |> StringSet.union (vars_of_dfa states1) 
-			 |> StringSet.to_list in
+	        |>  StringSet.union (vars_of_dfa states1) 
+			|>  StringSet.to_list in
     
 	    List.length states2 
 	|>  max (List.length states1) 

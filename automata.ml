@@ -1,28 +1,6 @@
 open Ast
 open Batteries
 
-module Brzozowski = struct
-	let rec e : term -> term = function
-		  Act _ -> Zero
-		| One -> One
-		| Zero -> Zero
-		| Plus (e1, e2) -> Plus (e e1, e e2) |> simplify
-		| Times (e1, e2) -> Times (e e1, e e2) |> simplify
-		| Star _ -> One
-	and d (exp : term) : string -> term = fun a -> 
-		match exp with
-		| Zero -> Zero
-		| One -> Zero
-		| Act b when a = b -> One
-		| Act b -> Zero
-		| Plus (e1, e2) -> Plus (d e1 a, d e2 a) 
-		| Times (e1, e2) -> 
-			let e1' = Times (d e1 a, e2) in 
-			let e2' = Times (e e1, d e2 a) in
-			Plus (e1', e2')
-		| Star e' -> Times (d e' a, exp)
-end
-
 type id = string
 
 type nfa = id * (n_state list)
@@ -103,7 +81,7 @@ let string_of_nfa ((start, states) : nfa) : string =
 	let add_start_node graph = 
 		graph ^ "START [style=invis];\nSTART -> \"" ^ start ^ "\";\n}" in 
 
-    "digraph NFA {\ncompound=true;\nordering=out;\n"
+    "digraph NFA {\n"
 	|> List.fold_right add_label states
 	|> List.fold_right add_transitions states
 	|> add_start_node
@@ -130,7 +108,7 @@ let string_of_dfa ((start, states) : dfa) : string =
 	let add_start_node graph = 
 		graph ^ "START [style=invis];\nSTART -> \"" ^ start ^ "\";\n}" in 
 
-    "digraph DFA {\ncompound=true;\nordering=out;\n"
+    "digraph DFA {\n"
 	|> List.fold_right add_label states
 	|> List.fold_right add_transitions states
 	|> add_start_node
@@ -292,51 +270,62 @@ let determinize ((start, states) : nfa) : dfa =
 	|>  Tuple2.make (name_of_dstate [start])
 
 (*===================================================================================
-								DFA Minimization									
-====================================================================================*)
-
-let minimize (d : dfa) : dfa =
-	failwith "unimplemented"
-
-(*===================================================================================
 								 Bisimulation									
 ====================================================================================*)
 
 type sequence = string list
 
-(* Gets the alphabet of a dfa *)
-let vars_of_dfa (states : d_state list) : StringSet.t =
-	failwith ""
+(* Gets the alphabet of a dfa. We assume by convention that all states have transitions
+   on all letters *)
+let vars_of_dfa : d_state list -> StringSet.t =
+	    List.hd
+	%>  d_state_to_transitions 
+	%>  List.map Tuple2.first 
+	%>  StringSet.of_list
 
 (* All strings of alphabet sigma up to length i *)
-let sigma_star (sigma : StringSet.t) (i : int) : sequence list = 
-	failwith ""
+let rec sigma_star (sigma : string list) (i : int) : sequence list = 
+	if  i <= 1 then sigma >>| List.singleton |> List.cons [] else 
+
+	let append_sigma (seq : sequence) : sequence list = 
+			sigma 
+		>>| flip List.cons seq
+		|>  List.cons seq in 
+
+	    i - 1
+	|>  sigma_star sigma
+	>>= append_sigma 
 
 (* runs the input dfa on the input letter list, and produces whether or not it accepts*)
-let accepts (d : dfa) (s : sequence) : bool =
-	failwith ""
+let accepts ((start, states) : dfa) : sequence -> bool =
+	let step (state : d_state) (l : string) : d_state = 
+		    d_state_to_transitions state 
+		|>  List.assoc l
+		|>  flip id_to_d_state states in
 
-(* Simulates 2 dfas on an input, and produces where they differ *)
+	   List.fold_left step (id_to_d_state start states)
+	%> d_state_is_final
+
+(* Simulates 2 dfas on an input, and produces evidence of their differece *)
 let bisimulate (d1 : dfa) (d2 : dfa) (s : sequence) : sequence option =
-	failwith ""
+	if accepts d1 s = accepts d2 s then None else Some s
 
 (* Compares equality of two dfas by simulating them on every possible string in their 
    alphabets of length up to the number of states in the larger dfa. Produces None if
    equivalent, or Some x for a string x where they differ.  *)
 let equal ((start1, states1) : dfa) ((start2, states2) : dfa) : string option = 
 	let flatten_to_string : string list -> string = 
-		List.fold_left (fun acc x -> acc ^ "," ^ x) "" in 
+		List.fold_left (fun acc x -> acc ^ " " ^ x) "" 
+    %>  String.trim in 
 
-	let sigma1 = vars_of_dfa states1 in 
-	let sigma2 = vars_of_dfa states2 in 
-	let diff = StringSet.sym_diff sigma1 sigma2 in
-	
-	if neg StringSet.is_empty diff then Some (StringSet.any diff) else
-
+	let sigma = vars_of_dfa states1
+	         |> StringSet.union (vars_of_dfa states1) 
+			 |> StringSet.to_list in
+    
 	    List.length states2 
 	|>  max (List.length states1) 
-	|>  sigma_star sigma1 
-	>>| bisimulate (start1, states1) (start1, states2) 
-	|>  List.find_opt Option.is_some 
+	|>  sigma_star sigma
+	>>| bisimulate (start1, states1) (start2, states2) 
+	|>  List.find_opt Option.is_some
 	|>  flip Option.bind identity 
 	|>  Option.map flatten_to_string

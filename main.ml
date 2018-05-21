@@ -4,7 +4,7 @@ open Equality
 
 let print_result = function 
 	  Equal -> print_endline "equal"
-	| NonEqual t -> Printf.printf "nonequal, differ on: %s\n" t
+	| NonEqual t -> Printf.printf "nonequal, differ on: \"%s\"\n" t
 
 let eval_term : string -> unit = 
 	   Lexing.from_string

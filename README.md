@@ -15,15 +15,12 @@ opam: `opam install batteries`.
 At the suggestion of Professor Kozen, the parser, lexer and AST were based on 
 those used for the KATLite project found [here](http://www.cs.cornell.edu/Projects/KAT/KATlite.zip).
 
-If a single term is entered, a minimal DFA is built and a .dot representation of
-the DFA is printed to the commandline, and can be viewed using any graphviz tool, such as
+If a single term is entered, a NFA and DFA are built and a .dot representation of
+the automata is printed to the commandline, and can be viewed using a graphviz tool such as
 [WebGraphviz](http://www.webgraphviz.com/).
 
-If an equation is entered, minimal DFAs for both of them are generated and bisimulated
+If an equation is entered, DFAs for both of them are generated and bisimulated
 to determine equivalence for the two terms.
-
-The minimal DFA is built for a term by building an NFA from a term, determinizing it
-and then minimizing it.
 
 To build the NFA, each state in the NFA is a term such that state A transitions to B on input
 a if B is the Brzozowski derivative of A on a. The Brzozowski derivative is taken of the input term

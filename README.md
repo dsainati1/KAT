@@ -16,7 +16,8 @@ At the suggestion of Professor Kozen, the parser, lexer and AST were based on
 those used for the KATLite project found [here](http://www.cs.cornell.edu/Projects/KAT/KATlite.zip).
 
 If a single term is entered, a minimal DFA is built and a .dot representation of
-the DFA is printed to the commandline, and can be viewed using any graphviz tool.
+the DFA is printed to the commandline, and can be viewed using any graphviz tool, such as
+[WebGraphviz](http://www.webgraphviz.com/).
 
 If an equation is entered, minimal DFAs for both of them are generated and bisimulated
 to determine equivalence for the two terms.

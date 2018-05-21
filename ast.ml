@@ -53,11 +53,23 @@ let rec simplify (t : term) : term =
 and simplify_plus (e1 : term) (e2 : term) : term = 
   let e1' = simplify e1 in 
   let e2' = simplify e2 in 
+  let combine3 (e1, e2, e3) : term = 
+    let str1 = term_to_string e1 in 
+    let str2 = term_to_string e2 in 
+    let str3 = term_to_string e3 in 
+    if str1 = str2 && str2 = str3 then e1
+    else if str1 = str2 then Plus(e1, e3) 
+    else if str2 = str3 then Plus(e1, e2)
+    else if str3 = str1 then Plus(e2, e3)
+    else Plus(Plus(e1, e2), e3) in 
+
   match e1', e2' with 
   | _, Zero -> e1'
   | Zero, _ -> e2'
   | One, One -> One
-  | Act x, Act y when y = x -> Act x
+  | Plus (e1, e2), e3 -> combine3 (e1, e2, e3)
+  | e1, Plus (e2, e3) -> combine3 (e1, e2, e3)
+  | e1, e2 when term_to_string e1 = term_to_string e2 -> e1
   | _, _ -> Plus (e1', e2')
 
 and simplify_times (e1 : term) (e2 : term) : term = 

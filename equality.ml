@@ -17,6 +17,7 @@ let check_equality ((e1 : term), (e2: term)) : result =
 	equal d1 d2 |> map (fun s -> NonEqual s) |? Equal 
 
 let automaton_string (e : term) : string = 
-	   vars e
-	|> build_nfa e 
-	|> string_of_nfa
+	let n = vars e |> build_nfa e in 
+	string_of_nfa n |> print_endline;
+	print_endline "";
+	determinize n |> string_of_dfa

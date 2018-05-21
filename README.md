@@ -32,3 +32,6 @@ in the above fashion until an automaton is constructed. A term/state is final if
 (the E derivative is 1). The start state of the NFA is the state corresponding to the original term. To leverage
 nondeterminism, transitions of the form e -> (e1 + e2) on a are separated into two transitions e -> e1 on a and 
 e -> e2 on a, allowing e to transition on a nondeterministically. 
+
+The subset construction is used to determinize NFAs, calculating the set of nondeterministic states reachable
+from another set and using these two sets as deterministic states. 

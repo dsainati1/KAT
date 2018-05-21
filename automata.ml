@@ -302,5 +302,41 @@ let minimize (d : dfa) : dfa =
 								 Bisimulation									
 ====================================================================================*)
 
-let equal (d1 : dfa) (d2 : dfa) : string option = 
-	None
+type sequence = string list
+
+(* Gets the alphabet of a dfa *)
+let vars_of_dfa (states : d_state list) : StringSet.t =
+	failwith ""
+
+(* All strings of alphabet sigma up to length i *)
+let sigma_star (sigma : StringSet.t) (i : int) : sequence list = 
+	failwith ""
+
+(* runs the input dfa on the input letter list, and produces whether or not it accepts*)
+let accepts (d : dfa) (s : sequence) : bool =
+	failwith ""
+
+(* Simulates 2 dfas on an input, and produces where they differ *)
+let bisimulate (d1 : dfa) (d2 : dfa) (s : sequence) : sequence option =
+	failwith ""
+
+(* Compares equality of two dfas by simulating them on every possible string in their 
+   alphabets of length up to the number of states in the larger dfa. Produces None if
+   equivalent, or Some x for a string x where they differ.  *)
+let equal ((start1, states1) : dfa) ((start2, states2) : dfa) : string option = 
+	let flatten_to_string : string list -> string = 
+		List.fold_left (fun acc x -> acc ^ "," ^ x) "" in 
+
+	let sigma1 = vars_of_dfa states1 in 
+	let sigma2 = vars_of_dfa states2 in 
+	let diff = StringSet.sym_diff sigma1 sigma2 in
+	
+	if neg StringSet.is_empty diff then Some (StringSet.any diff) else
+
+	    List.length states2 
+	|>  max (List.length states1) 
+	|>  sigma_star sigma1 
+	>>| bisimulate (start1, states1) (start1, states2) 
+	|>  List.find_opt Option.is_some 
+	|>  flip Option.bind identity 
+	|>  Option.map flatten_to_string
